@@ -50,9 +50,3 @@ class FocalLoss(nn.Module):
         invprobs = F.logsigmoid(-input * (target * 2.0 - 1.0))
         loss = (invprobs * self.gamma).exp() * loss
         return loss.sum(dim=1).mean()
-
-
-def acc(preds, targs, th=0.0):
-    preds = (preds > th).int()
-    targs = targs.int()
-    return (preds == targs).float().mean()
