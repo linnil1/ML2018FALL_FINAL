@@ -13,10 +13,12 @@ test_csv = 'sample_submission.csv'
 test_zip = 'test.zip'
 train_folder = os.path.join(data_path, 'train')
 test_folder = os.path.join(data_path, 'test')
-# colors = ['red', 'green', 'blue', 'yellow']
-colors = ['red', 'green', 'blue']
+colors = ['red', 'green', 'blue', 'yellow']
+# colors = ['red', 'green', 'blue']
 C = 28
 num_train = 28000
+np.set_printoptions(2)
+batch_size = 8
 
 
 def test():

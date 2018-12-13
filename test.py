@@ -3,15 +3,14 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 import numpy as np
 
-from database import ProteinDataset
+from database import ProteinDataset, batch_size
 from models import TestDenseNet, TestNet, FocalLoss
 import pandas as pd
+from utils import processbar
 
 
 save_name = 'test_11.pt'
 output_name = 'test.csv'
-batch_size = 8
-output_step = 100
 
 # init network
 net = TestDenseNet()
@@ -33,10 +32,8 @@ test_loader = DataLoader(testset, batch_size=8, shuffle=False, num_workers=6)
 ans_dict = {}
 
 for batch_idx, blob in enumerate(test_loader):
-    if batch_idx % output_step == 0:
-        print("{}/{} {:.2f}%".format(
-              batch_idx * batch_size, len(testset),
-              100 * batch_idx * batch_size / len(testset)))
+    processbar(batch_idx, len(testset), end='\n')
+
     # run
     pred = net(blob['img'].cuda()) >= 0
     name = blob['name']
