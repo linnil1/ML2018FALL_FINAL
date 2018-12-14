@@ -4,13 +4,13 @@ from torch.utils.data import DataLoader
 import numpy as np
 
 from database import ProteinDataset, batch_size
-from models import TestDenseNet, TestNet, FocalLoss
+from models import TestDenseNet, FocalLoss, evalute
 import pandas as pd
 from utils import processbar
 
 
-save_name = 'test_11.pt'
-output_name = 'test.csv'
+save_name = 'test8_14.pt'
+output_name = 'test8_14.csv'
 
 # init network
 net = TestDenseNet()
@@ -25,17 +25,18 @@ testset = ProteinDataset(usezip=False,
                            # transforms.RandomVerticalFlip(),
                            # transforms.RandomHorizontalFlip(),
                            transforms.ToTensor(),
+                           # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
                          ]))
 
-test_loader = DataLoader(testset, batch_size=8, shuffle=False, num_workers=6)
+test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
 
 ans_dict = {}
 
 for batch_idx, blob in enumerate(test_loader):
-    processbar(batch_idx, len(testset), end='\n')
+    processbar(batch_idx + 1, len(testset), end='\n')
 
     # run
-    pred = net(blob['img'].cuda()) >= 0
+    pred = evalute(net(blob['img'].cuda()))
     name = blob['name']
     for i in range(len(blob['img'])):
         pred_ind = pred[i].nonzero().cpu().numpy()
