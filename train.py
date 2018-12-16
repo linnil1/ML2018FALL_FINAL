@@ -10,21 +10,33 @@ from utils import myOutput
 import Augmentor
 
 
-start_epoches = 13  # >0 will resume your training
-epoches = 20
-rand_seed = 1220
-save_name = 'test8'
-lr = 0.0001
+save_name = 'test11'
 lossfunc = FocalLoss()
+"""
+# 1
+start_epoches = 0  # >0 will resume your training
+epoches = 2
+rand_seed = 2
+lr = 0.001
+net = TestDenseNet(finetune=False)
+"""
+# 2
+start_epoches = 2  # >0 will resume your training
+epoches = 10
+rand_seed = 210
+lr = 0.0001
 net = TestDenseNet(finetune=True)
 
 p = Augmentor.Pipeline()
 p.rotate(probability=1, max_left_rotation=25, max_right_rotation=25)
 p.flip_left_right(probability=0.5)
 p.flip_top_bottom(probability=0.5)
-p.zoom_random(probability=0.5, percentage_area=0.5)
-p.skew(probability=0.5, magnitude=0.5)
-p.random_erasing(probability=0.5, rectangle_area=0.5)
+# p.zoom_random(probability=0.5, percentage_area=0.5)
+# p.skew(probability=0.5, magnitude=0.5)
+# p.random_erasing(probability=0.5, rectangle_area=0.5)
+# p.zoom_random(probability=0.5, percentage_area=0.25)
+# p.skew(probability=0.5, magnitude=0.25)
+# p.random_erasing(probability=0.5, rectangle_area=0.25)
 # p.random_brightness(probability=0.5, min_factor=0.8, max_factor=1)
 # p.random_distortion(probability=0.5)
 
@@ -49,8 +61,8 @@ validset = ProteinDataset(usezip=False,
                             transforms.ToTensor(),
                             # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
                           ]))
-train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
-valid_loader = DataLoader(validset, batch_size=batch_size, shuffle=True, num_workers=2)
+train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=8)
+valid_loader = DataLoader(validset, batch_size=batch_size, shuffle=True, num_workers=8)
 
 # load net and loss
 if start_epoches:

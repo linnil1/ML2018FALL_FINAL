@@ -9,8 +9,8 @@ import pandas as pd
 from utils import processbar
 
 
-save_name = 'test8_14.pt'
-output_name = 'test8_14.csv'
+save_name = 'test11_12.pt'
+output_name = 'test11_12.csv'
 
 # init network
 net = TestDenseNet()
@@ -28,7 +28,7 @@ testset = ProteinDataset(usezip=False,
                            # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
                          ]))
 
-test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8)
 
 ans_dict = {}
 
@@ -43,6 +43,7 @@ for batch_idx, blob in enumerate(test_loader):
         ans = ''
         if pred_ind.any():
             ans = ' '.join(str(p) for p in pred_ind[:, 0])
+        print(ans)
         ans_dict[name[i]] = ans
 
 # write csv

@@ -19,7 +19,7 @@ colors = ['red', 'green', 'blue', 'yellow']
 C = 28
 num_train = 28000
 np.set_printoptions(2)
-batch_size = 16
+batch_size = 10
 
 
 def test():
@@ -74,7 +74,7 @@ class ProteinDataset(Dataset):
             imagefile = [os.path.join(train_folder, f) for f in imagefile]
         img = np.stack([np.array(Image.open(f)) for f in imagefile])
         img = Image.fromarray(np.rollaxis(img, 0, 3))
-        img = img.resize([224, 224])
+        # img = img.resize([224, 224])
 
         if self.mode != 'test':
             one_hot = np.zeros(C).astype(np.float32)

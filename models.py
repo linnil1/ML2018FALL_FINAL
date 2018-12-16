@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torchvision.models import densenet201, resnet101
+from torchvision.models import densenet121, resnet101
 from collections import OrderedDict
 
 
@@ -10,7 +10,7 @@ class TestDenseNet(nn.Module):
 
     def __init__(self, finetune=True):
         super(TestDenseNet, self).__init__()
-        self.dense = densenet201(pretrained=True)
+        self.dense = densenet121(pretrained=True)
 
         self.features = nn.Sequential(OrderedDict([
             ('conv0', nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)),
@@ -18,10 +18,10 @@ class TestDenseNet(nn.Module):
         ]))
 
         self.linear = nn.Sequential(OrderedDict([
-            ('classifier', self.dense.classifier),
-            # ('relu', nn.ReLU()),
-            # ('dropout', nn.Dropout(0.2)),
-            ('linear', nn.Linear(1000, 28)),
+            ('linear0', nn.Linear(16384, 1000)),
+            # ('relu0', nn.ReLU()),
+            # ('dropout0', nn.Dropout(0.2)),
+            ('linear1', nn.Linear(1000, 28)),
             ('sigmoid', nn.Sigmoid()),
         ]))
 
@@ -38,7 +38,7 @@ class TestDenseNet(nn.Module):
     def forward(self, x):
         features = self.features(x)
         out = F.relu(features, inplace=True)
-        out = F.avg_pool2d(out, kernel_size=7, stride=1).view(features.size(0), -1)
+        out = F.avg_pool2d(out, kernel_size=7, stride=3).view(features.size(0), -1)
         out = self.linear(out)
         return out
 
