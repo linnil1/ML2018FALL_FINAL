@@ -9,8 +9,8 @@ import pandas as pd
 from utils import processbar
 
 
-save_name = 'test11_12.pt'
-output_name = 'test11_12.csv'
+save_name = 'test12_27.pt'
+output_name = 'test12_27.csv'
 
 # init network
 net = TestDenseNet()
@@ -26,6 +26,8 @@ testset = ProteinDataset(usezip=False,
                            # transforms.RandomHorizontalFlip(),
                            transforms.ToTensor(),
                            # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
+                           transforms.Normalize(mean=[0.48, 0.48, 0.48, 0.48],
+                                                std=[0.22, 0.22, 0.22, 0.22])
                          ]))
 
 test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8)

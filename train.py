@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 
 from database import ProteinDataset, batch_size, C
 from models import TestDenseNet, FocalLoss, F1Loss, F1, acc, TestResNet
-from utils import myOutput
+from utils import myOutput, saveOutput
 import Augmentor
 
 
-save_name = 'test11'
+save_name = 'test12'
 lossfunc = FocalLoss()
 """
 # 1
@@ -22,8 +22,8 @@ net = TestDenseNet(finetune=False)
 """
 # 2
 start_epoches = 2  # >0 will resume your training
-epoches = 10
-rand_seed = 210
+epoches = 40
+rand_seed = 240
 lr = 0.0001
 net = TestDenseNet(finetune=True)
 
@@ -34,8 +34,8 @@ p.flip_top_bottom(probability=0.5)
 # p.zoom_random(probability=0.5, percentage_area=0.5)
 # p.skew(probability=0.5, magnitude=0.5)
 # p.random_erasing(probability=0.5, rectangle_area=0.5)
-# p.zoom_random(probability=0.5, percentage_area=0.25)
-# p.skew(probability=0.5, magnitude=0.25)
+p.zoom_random(probability=0.5, percentage_area=0.75)
+p.skew(probability=0.5, magnitude=0.25)
 # p.random_erasing(probability=0.5, rectangle_area=0.25)
 # p.random_brightness(probability=0.5, min_factor=0.8, max_factor=1)
 # p.random_distortion(probability=0.5)
@@ -54,6 +54,8 @@ trainset = ProteinDataset(usezip=False,
                             p.torch_transform(),
                             transforms.ToTensor(),
                             # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
+                            transforms.Normalize(mean=[0.48, 0.48, 0.48, 0.48],
+                                                 std=[0.22, 0.22, 0.22, 0.22])
                           ]))
 validset = ProteinDataset(usezip=False,
                           mode='valid',
@@ -115,4 +117,6 @@ for epoch in range(start_epoches + 1, epoches + 1):
     print("Valid: ", end='')
     myOutput(-1, len(validset), valid_loss, valid_pred, valid_targ)
     torch.save(net.state_dict(), "{}_{}.pt".format(save_name, epoch))
+    saveOutput(save_name, epoch)
     print("---")
+    
