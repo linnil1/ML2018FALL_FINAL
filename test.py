@@ -9,8 +9,10 @@ import pandas as pd
 from utils import processbar
 
 
-save_name = 'test12_27.pt'
-output_name = 'test12_27.csv'
+# kaggle competitions submit -c human-protein-atlas-image-classification -f submission.csv -m "Message" 
+save_name = 'test14_20.pt'
+output_name = 'test14_20.csv'
+nozero = True
 
 # init network
 net = TestDenseNet()
@@ -30,7 +32,7 @@ testset = ProteinDataset(usezip=False,
                                                 std=[0.22, 0.22, 0.22, 0.22])
                          ]))
 
-test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8)
+test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0)
 
 ans_dict = {}
 
@@ -38,15 +40,19 @@ for batch_idx, blob in enumerate(test_loader):
     processbar(batch_idx + 1, len(testset), end='\n')
 
     # run
-    pred = evalute(net(blob['img'].cuda()))
+    res = net(blob['img'].cuda())
+    pred = evalute(res)
     name = blob['name']
     for i in range(len(blob['img'])):
         pred_ind = pred[i].nonzero().cpu().numpy()
         ans = ''
         if pred_ind.any():
             ans = ' '.join(str(p) for p in pred_ind[:, 0])
+        elif nozero:
+            ans = str(torch.argmax(res[i]).cpu().numpy())
         print(ans)
         ans_dict[name[i]] = ans
+    res = []
 
 # write csv
 ans = []

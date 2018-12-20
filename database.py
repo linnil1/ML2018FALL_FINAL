@@ -6,8 +6,8 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 
-data_path = 'data'
-# data_path = '/home/tmp'
+# data_path = 'data'
+data_path = '/home/tmp'
 train_csv = 'train.csv'
 train_zip = 'train.zip'
 test_csv = 'sample_submission.csv'
@@ -19,7 +19,8 @@ colors = ['red', 'green', 'blue', 'yellow']
 C = 28
 num_train = 28000
 np.set_printoptions(2)
-batch_size = 10
+parallel = [0, 1]
+batch_size = 5 *  len(parallel)
 
 
 def test():

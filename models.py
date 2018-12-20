@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torchvision.models import densenet121, resnet101
+from torchvision.models import densenet121, densenet201, resnet101
 from collections import OrderedDict
 
 
@@ -10,37 +10,41 @@ class TestDenseNet(nn.Module):
 
     def __init__(self, finetune=True):
         super(TestDenseNet, self).__init__()
-        self.dense = densenet121(pretrained=True)
+        # self.dense = densenet121(pretrained=True)
+        self.dense = densenet201(pretrained=True)
 
         self.features = nn.Sequential(OrderedDict([
             ('conv0', nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)),
+            # dense161
+            # ('conv0', nn.Conv2d(4, 96, kernel_size=7, stride=2, padding=3, bias=False)),
             ('dense', self.dense.features[1:]),
+            ('dense-relu', nn.ReLU(inplace=True)),
         ]))
 
         self.linear = nn.Sequential(OrderedDict([
-            ('linear0', nn.Linear(16384, 1000)),
+            ('linear0', nn.Linear(1920 * 4 * 4, 1000)),
+            # ('linear0', nn.Linear(16384, 1000)), # for dense121
             # ('relu0', nn.ReLU()),
             # ('dropout0', nn.Dropout(0.2)),
             ('linear1', nn.Linear(1000, 28)),
             ('sigmoid', nn.Sigmoid()),
         ]))
+        # self.adapt_maxpool = nn.AdaptiveMaxPool2d([2, 2], return_indices=False)
+        # self.adapt_maxpool = nn.AdaptiveAvgPool2d([2, 2])
 
         # self.features[0].weight[:, :3, :, :] = self.dense.features[0].weight[:]
 
         if not finetune:
             for param in self.features[1].parameters():
                 param.requires_grad = False
-            """
-            for param in self.linear[0].parameters():
-                param.requires_grad = False
-            """
 
     def forward(self, x):
-        features = self.features(x)
-        out = F.relu(features, inplace=True)
-        out = F.avg_pool2d(out, kernel_size=7, stride=3).view(features.size(0), -1)
-        out = self.linear(out)
-        return out
+        x = self.features(x)
+        x = F.avg_pool2d(x, kernel_size=7, stride=3)
+        # x = self.adapt_maxpool(x)
+        x = x.view(x.size(0), -1)
+        x = self.linear(x)
+        return x
 
 
 def evalute(x):

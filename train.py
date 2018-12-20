@@ -4,26 +4,31 @@ from torchvision import transforms
 import numpy as np
 import matplotlib.pyplot as plt
 
-from database import ProteinDataset, batch_size, C
+from database import ProteinDataset, batch_size, C, parallel
 from models import TestDenseNet, FocalLoss, F1Loss, F1, acc, TestResNet
 from utils import myOutput, saveOutput
 import Augmentor
 
 
-save_name = 'test12'
+save_name = 'test14'
 lossfunc = FocalLoss()
 """
 # 1
 start_epoches = 0  # >0 will resume your training
 epoches = 2
 rand_seed = 2
-lr = 0.001
+lr = 0.0001
 net = TestDenseNet(finetune=False)
-"""
 # 2
 start_epoches = 2  # >0 will resume your training
-epoches = 40
-rand_seed = 240
+epoches = 30
+rand_seed = 230
+lr = 0.0001
+net = TestDenseNet(finetune=True)
+"""
+start_epoches = 3  # >0 will resume your training
+epoches = 30
+rand_seed = 330
 lr = 0.0001
 net = TestDenseNet(finetune=True)
 
@@ -53,7 +58,6 @@ trainset = ProteinDataset(usezip=False,
                           transform=transforms.Compose([
                             p.torch_transform(),
                             transforms.ToTensor(),
-                            # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
                             transforms.Normalize(mean=[0.48, 0.48, 0.48, 0.48],
                                                  std=[0.22, 0.22, 0.22, 0.22])
                           ]))
@@ -61,15 +65,22 @@ validset = ProteinDataset(usezip=False,
                           mode='valid',
                           transform=transforms.Compose([
                             transforms.ToTensor(),
-                            # transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5, 0.5)),
+                            transforms.Normalize(mean=[0.48, 0.48, 0.48, 0.48],
+                                                 std=[0.22, 0.22, 0.22, 0.22])
                           ]))
 train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=8)
 valid_loader = DataLoader(validset, batch_size=batch_size, shuffle=True, num_workers=8)
 
 # load net and loss
+print(net)
+if parallel:
+    net = torch.nn.DataParallel(net, device_ids=parallel)
 if start_epoches:
     data = torch.load("{}_{}.pt".format(save_name, start_epoches))
-    net.load_state_dict(data)
+    if parallel:
+        net.module.load_state_dict(data)
+    else:
+        net.load_state_dict(data)
 
 net.cuda()
 optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, net.parameters()), lr=lr)
@@ -116,7 +127,10 @@ for epoch in range(start_epoches + 1, epoches + 1):
     myOutput(-1, len(trainset), train_loss, train_pred, train_targ)
     print("Valid: ", end='')
     myOutput(-1, len(validset), valid_loss, valid_pred, valid_targ)
-    torch.save(net.state_dict(), "{}_{}.pt".format(save_name, epoch))
+    if parallel:
+        torch.save(net.module.state_dict(), "{}_{}.pt".format(save_name, epoch))
+    else:
+        torch.save(net.state_dict(), "{}_{}.pt".format(save_name, epoch))
     saveOutput(save_name, epoch)
     print("---")
     
