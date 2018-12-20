@@ -6,8 +6,8 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 
-# data_path = 'data'
-data_path = '/home/tmp'
+data_path = 'data'
+# data_path = '/home/tmp'
 train_csv = 'train.csv'
 train_zip = 'train.zip'
 test_csv = 'sample_submission.csv'
@@ -20,7 +20,8 @@ C = 28
 num_train = 28000
 np.set_printoptions(2)
 parallel = [0, 1]
-batch_size = 5 *  len(parallel)
+# parallel = [0]
+batch_size = 12 * 4 * len(parallel)
 
 
 def test():
@@ -75,7 +76,7 @@ class ProteinDataset(Dataset):
             imagefile = [os.path.join(train_folder, f) for f in imagefile]
         img = np.stack([np.array(Image.open(f)) for f in imagefile])
         img = Image.fromarray(np.rollaxis(img, 0, 3))
-        # img = img.resize([224, 224])
+        img = img.resize([448, 448])
 
         if self.mode != 'test':
             one_hot = np.zeros(C).astype(np.float32)

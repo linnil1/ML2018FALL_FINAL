@@ -46,4 +46,4 @@ def processbar(batch_idx, length, end=' '):
               batch_idx * batch_size, length,
               100 * batch_idx * batch_size / length), end=end)
     else:
-        print("{:6}/{:6} 100%".format(length, length), end=end)
+        print("{:6}/{:6} {:6.2f}%".format(length, length, 100), end=end)

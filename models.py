@@ -10,8 +10,8 @@ class TestDenseNet(nn.Module):
 
     def __init__(self, finetune=True):
         super(TestDenseNet, self).__init__()
-        # self.dense = densenet121(pretrained=True)
-        self.dense = densenet201(pretrained=True)
+        self.dense = densenet121(pretrained=True)
+        # self.dense = densenet201(pretrained=True)
 
         self.features = nn.Sequential(OrderedDict([
             ('conv0', nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)),
@@ -22,7 +22,8 @@ class TestDenseNet(nn.Module):
         ]))
 
         self.linear = nn.Sequential(OrderedDict([
-            ('linear0', nn.Linear(1920 * 4 * 4, 1000)),
+            ('linear0', nn.Linear(1024, 1000)), # for 224*224 for dense121
+            # ('linear0', nn.Linear(1920 * 4 * 4, 1000)), # for dense 201
             # ('linear0', nn.Linear(16384, 1000)), # for dense121
             # ('relu0', nn.ReLU()),
             # ('dropout0', nn.Dropout(0.2)),
@@ -40,7 +41,8 @@ class TestDenseNet(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = F.avg_pool2d(x, kernel_size=7, stride=3)
+        x = F.avg_pool2d(x, kernel_size=7, stride=1)
+        # x = F.avg_pool2d(x, kernel_size=7, stride=3) # for smaller
         # x = self.adapt_maxpool(x)
         x = x.view(x.size(0), -1)
         x = self.linear(x)

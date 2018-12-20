@@ -10,8 +10,8 @@ from utils import processbar
 
 
 # kaggle competitions submit -c human-protein-atlas-image-classification -f submission.csv -m "Message" 
-save_name = 'test14_20.pt'
-output_name = 'test14_20.csv'
+save_name = 'test16_29.pt'
+output_name = 'test16_29_max.csv'
 nozero = True
 
 # init network
@@ -32,15 +32,28 @@ testset = ProteinDataset(usezip=False,
                                                 std=[0.22, 0.22, 0.22, 0.22])
                          ]))
 
-test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0)
+test_loader = DataLoader(testset, batch_size=batch_size//4, shuffle=False, num_workers=8)
 
 ans_dict = {}
 
 for batch_idx, blob in enumerate(test_loader):
-    processbar(batch_idx + 1, len(testset), end='\n')
+    processbar(batch_idx + 1, len(testset) * 4, end='\n')
 
     # run
-    res = net(blob['img'].cuda())
+    img = blob['img'].cuda()
+    real_len = len(img)
+    img = torch.cat([img[:, :, 0:224, 0:224],
+                     img[:, :, 0:224, 224:448],
+                     img[:, :, 224:448, 0:224],
+                     img[:, :, 224:448, 224:448]])
+    res = net(img)
+    for i in range(real_len):
+        a = res[i::real_len]
+        assert(len(a) == 4)
+        # res[i] = a.mean(dim=0)
+        res[i] = a.max(dim=0)[0]
+        a = None
+    res = res[:real_len]
     pred = evalute(res)
     name = blob['name']
     for i in range(len(blob['img'])):
@@ -50,9 +63,11 @@ for batch_idx, blob in enumerate(test_loader):
             ans = ' '.join(str(p) for p in pred_ind[:, 0])
         elif nozero:
             ans = str(torch.argmax(res[i]).cpu().numpy())
-        print(ans)
+        # print(ans)
         ans_dict[name[i]] = ans
-    res = []
+    img = None
+    res = None
+    pred = None
 
 # write csv
 ans = []
