@@ -10,7 +10,7 @@ class TestDenseNet(nn.Module):
 
     def __init__(self, finetune=True):
         super(TestDenseNet, self).__init__()
-        self.dense = densenet121(pretrained=True)
+        self.dense = densenet201(pretrained=True)
         # self.dense = densenet201(pretrained=True)
 
         self.features = nn.Sequential(OrderedDict([
@@ -22,12 +22,12 @@ class TestDenseNet(nn.Module):
         ]))
 
         self.linear = nn.Sequential(OrderedDict([
-            ('linear0', nn.Linear(1024, 1000)), # for 224*224 for dense121
-            # ('linear0', nn.Linear(1920 * 4 * 4, 1000)), # for dense 201
-            # ('linear0', nn.Linear(16384, 1000)), # for dense121
-            # ('relu0', nn.ReLU()),
-            # ('dropout0', nn.Dropout(0.2)),
-            ('linear1', nn.Linear(1000, 28)),
+            # ('linear0', nn.Linear(4096, 1000)), # for 512/2 * 512/2 for dense121
+            ('dropout0', nn.Dropout(0.33)),
+            ('linear0', nn.Linear(7680, 1024)), # for 512/2 * 512/2 for dense201
+            ('relu0', nn.LeakyReLU()),
+            ('dropout1', nn.Dropout(0.44)),
+            ('linear1', nn.Linear(1024, 28)),
             ('sigmoid', nn.Sigmoid()),
         ]))
         # self.adapt_maxpool = nn.AdaptiveMaxPool2d([2, 2], return_indices=False)
@@ -107,16 +107,13 @@ class TestResNet(nn.Module):
     def __init__(self, finetune=True):
         super(TestResNet, self).__init__()
         self.resnet = resnet101(pretrained=True)
-
-        oldweight = self.resnet.conv1.weight
         self.resnet.conv1 = nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)
-
-        # self.resnet.conv1.weight[:, :3] = oldweight
-
+        self.resnet.fc = nn.Linear(8192, 1024)
         self.linear = nn.Sequential(OrderedDict([
-            # ('relu', nn.ReLU()),
-            ('dropout', nn.Dropout(0.2)),
-            ('linear', nn.Linear(1000, 28)),
+            ('relu0', nn.LeakyReLU()),
+            ('dropout0', nn.Dropout(0.4)),
+            ('linear', nn.Linear(1024, 28)),
+            ('sigmoid', nn.Sigmoid()),
         ]))
 
         if not finetune:

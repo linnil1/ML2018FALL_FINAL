@@ -4,6 +4,7 @@ import os
 import zipfile
 from PIL import Image
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 
 data_path = 'data'
@@ -19,9 +20,17 @@ colors = ['red', 'green', 'blue', 'yellow']
 C = 28
 num_train = 28000
 np.set_printoptions(2)
-parallel = [0, 1]
-# parallel = [0]
-batch_size = 12 * 4 * len(parallel)
+# parallel = [0, 1]
+parallel = [0]
+crop_num = 5
+batch_size = 5 * crop_num * len(parallel)
+
+
+dataset_transform = transform=transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.48, 0.48, 0.48, 0.48],
+                         std=[0.22, 0.22, 0.22, 0.22])
+])
 
 
 def test():
@@ -76,7 +85,6 @@ class ProteinDataset(Dataset):
             imagefile = [os.path.join(train_folder, f) for f in imagefile]
         img = np.stack([np.array(Image.open(f)) for f in imagefile])
         img = Image.fromarray(np.rollaxis(img, 0, 3))
-        img = img.resize([448, 448])
 
         if self.mode != 'test':
             one_hot = np.zeros(C).astype(np.float32)
