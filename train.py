@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import time
 
 from database import ProteinDataset, batch_size, C, parallel, dataset_transform, crop_num
-from models import TestDenseNet, FocalLoss, F1Loss, F1, acc, TestResNet
+from models import TestDenseNet, FocalLoss, F1Loss, F1, acc, TestResNet, F1Focal
 from utils import myOutput, saveOutput
 import Augmentor
 
 
-save_name = 'test30'
-lossfunc = FocalLoss()
+save_name = 'test34'
+lossfunc = F1Focal()
 """
 # densenet 1
 start_epoches = 0  # >0 will resume your training
@@ -26,12 +26,23 @@ epoches = 40
 rand_seed = 240
 lr = 0.0001
 net = TestDenseNet(finetune=True)
-"""
-# densenet 2
-start_epoches = 2  # >0 will resume your training
-epoches = 40
-rand_seed = 240
+# densenet 1
+start_epoches = 0  # >0 will resume your training
+epoches = 10
+rand_seed = 10
 lr = 0.0001
+net = TestDenseNet(finetune=False)
+# densenet 2
+start_epoches = 7  # >0 will resume your training
+epoches = 40
+rand_seed = 740
+lr = 0.00004
+net = TestDenseNet(finetune=True)
+"""
+start_epoches = 13  # >0 will resume your training
+epoches = 40
+rand_seed = 1340
+lr = 0.00001
 net = TestDenseNet(finetune=True)
 
 p = Augmentor.Pipeline()

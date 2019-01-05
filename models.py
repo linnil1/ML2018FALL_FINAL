@@ -23,10 +23,10 @@ class TestDenseNet(nn.Module):
 
         self.linear = nn.Sequential(OrderedDict([
             # ('linear0', nn.Linear(4096, 1000)), # for 512/2 * 512/2 for dense121
-            ('dropout0', nn.Dropout(0.33)),
+            ('dropout0', nn.Dropout(0.4)),
             ('linear0', nn.Linear(7680, 1024)), # for 512/2 * 512/2 for dense201
             ('relu0', nn.LeakyReLU()),
-            ('dropout1', nn.Dropout(0.44)),
+            ('dropout1', nn.Dropout(0.5)),
             ('linear1', nn.Linear(1024, 28)),
             ('sigmoid', nn.Sigmoid()),
         ]))
@@ -126,3 +126,16 @@ class TestResNet(nn.Module):
         x = self.resnet(x)
         x = self.linear(x)
         return x
+
+
+class F1Focal(nn.Module):
+    def __init__(self, l=0.1):
+        super(F1Focal, self).__init__()
+        self.f1 = F1Loss()
+        self.focal = FocalLoss()
+        self.l = 0.1
+
+    def forward(self, pred, targ):
+        f1 = self.f1(pred, targ)
+        focal = self.focal(pred, targ)
+        return focal + self.l * f1
