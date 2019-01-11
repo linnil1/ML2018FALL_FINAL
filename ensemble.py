@@ -2,8 +2,8 @@ import numpy as np
 from database import ProteinDataset
 import pandas as pd
 
-ens_model = ['test30_22.npz', 'test34_30.npz']
-result_file = 'test30_22,test34_30,mean.csv'
+ens_model = ['test30_22.npz', 'test34_30.npz', 'test35_36.npz', 'test36_40.npz', 'test37_33.npz', 'test41_32.npz']
+result_file = 'test30_22,test34_30,test35_36,test36_40,test37_33,test41_32,mean.csv'
 
 data = [np.load(f) for f in ens_model]
 

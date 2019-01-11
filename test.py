@@ -2,6 +2,7 @@ import torch
 from torchvision import transforms
 from torch.utils.data import DataLoader
 import numpy as np
+import sys
 
 from database import ProteinDataset, batch_size, dataset_transform, crop_num
 from models import TestDenseNet, FocalLoss, evalute, TestResNet
@@ -10,9 +11,16 @@ from utils import processbar
 
 
 # kaggle competitions submit -c human-protein-atlas-image-classification -f submission.csv -m "Message" 
-model_name = 'test34_30.pt'
-result_file = 'test34_30_1.csv'
-output_file = 'test34_30.npz'
+if len(sys.argv) < 2:
+    print("Error. Use like this:")
+    print("$ python3 test.py test36_40")
+    sys.exit()
+else:
+    name = sys.argv[1]
+
+model_name = name + '.pt'
+result_file = name + '.csv'
+output_file = name + '.npz'
 nozero = True
 
 # init network

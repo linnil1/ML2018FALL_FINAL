@@ -11,39 +11,29 @@ from utils import myOutput, saveOutput
 import Augmentor
 
 
-save_name = 'test34'
+save_name = 'test36'
 lossfunc = F1Focal()
 """
+# test36
 # densenet 1
 start_epoches = 0  # >0 will resume your training
-epoches = 2
-rand_seed = 2
+epoches = 20
+rand_seed = 201
 lr = 0.0001
 net = TestDenseNet(finetune=False)
 # densenet 2
-start_epoches = 2  # >0 will resume your training
-epoches = 40
-rand_seed = 240
-lr = 0.0001
-net = TestDenseNet(finetune=True)
-# densenet 1
-start_epoches = 0  # >0 will resume your training
-epoches = 10
-rand_seed = 10
-lr = 0.0001
-net = TestDenseNet(finetune=False)
-# densenet 2
-start_epoches = 7  # >0 will resume your training
-epoches = 40
-rand_seed = 740
+start_epoches = 19  # >0 will resume your training
+epoches = 50
+rand_seed = 1950
 lr = 0.00004
 net = TestDenseNet(finetune=True)
 """
-start_epoches = 13  # >0 will resume your training
-epoches = 40
-rand_seed = 1340
-lr = 0.00001
-net = TestDenseNet(finetune=True)
+# densenet 1
+start_epoches = 0  # >0 will resume your training
+epoches = 20
+rand_seed = 201
+lr = 0.0001
+net = TestDenseNet(finetune=False)
 
 p = Augmentor.Pipeline()
 # p.rotate(probability=1, max_left_rotation=25, max_right_rotation=25)

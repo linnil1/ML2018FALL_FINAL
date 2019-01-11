@@ -16,12 +16,11 @@ test_zip = 'test.zip'
 train_folder = os.path.join(data_path, 'train')
 test_folder = os.path.join(data_path, 'test')
 colors = ['red', 'green', 'blue', 'yellow']
-# colors = ['red', 'green', 'blue']
 C = 28
 num_train = 28000
 np.set_printoptions(2)
-# parallel = [0, 1]
-parallel = [0]
+parallel = [0, 1]
+# parallel = [0]
 crop_num = 5
 batch_size = 5 * crop_num * len(parallel)
 
@@ -47,7 +46,7 @@ def test():
 
 class ProteinDataset(Dataset):
     """ Human Protein Atlas Image """
-    def __init__(self, mode='train', transform=None, usezip=True):
+    def __init__(self, mode='train', transform=None, usezip=True, num_train=num_train):
         if mode == 'test':
             self.groundtrue = pd.read_csv(os.path.join(data_path, test_csv))
         else:
@@ -58,6 +57,7 @@ class ProteinDataset(Dataset):
         self.transform = transform
         self.usezip = usezip
         self.mode = mode
+        self.num_train = num_train
         if usezip:
             if mode == 'test':
                 self.myzip = zipfile.ZipFile(os.path.join(data_path, test_zip))
@@ -66,15 +66,18 @@ class ProteinDataset(Dataset):
 
     def __len__(self):
         if self.mode == 'train':
-            return num_train
+            return self.num_train
         elif self.mode == 'valid':
-            return len(self.groundtrue) - num_train
+            return len(self.groundtrue) - self.num_train
         else:
             return len(self.groundtrue)
 
     def __getitem__(self, idx):
         if self.mode == 'valid':
-            idx += num_train
+            idx += self.num_train
+        # validation is at the begining
+        # if self.mode == 'train':
+        #     idx += len(self.groundtrue) - self.num_train
         name, target = self.groundtrue.iloc[idx]
         imagefile = [name + '_' + color + '.png' for color in colors]
         if self.usezip:

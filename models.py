@@ -30,10 +30,6 @@ class TestDenseNet(nn.Module):
             ('linear1', nn.Linear(1024, 28)),
             ('sigmoid', nn.Sigmoid()),
         ]))
-        # self.adapt_maxpool = nn.AdaptiveMaxPool2d([2, 2], return_indices=False)
-        # self.adapt_maxpool = nn.AdaptiveAvgPool2d([2, 2])
-
-        # self.features[0].weight[:, :3, :, :] = self.dense.features[0].weight[:]
 
         if not finetune:
             for param in self.features[1].parameters():
@@ -42,8 +38,6 @@ class TestDenseNet(nn.Module):
     def forward(self, x):
         x = self.features(x)
         x = F.avg_pool2d(x, kernel_size=7, stride=1)
-        # x = F.avg_pool2d(x, kernel_size=7, stride=3) # for smaller
-        # x = self.adapt_maxpool(x)
         x = x.view(x.size(0), -1)
         x = self.linear(x)
         return x
@@ -61,6 +55,7 @@ class FocalLoss(nn.Module):
 
     def forward(self, pred, targ):
         x = torch.zeros(targ.size()).cuda()
+        # x[targ == 1] = pred[targ == 1] * 0.8
         x[targ == 1] = pred[targ == 1]
         x[targ == 0] = 1 - pred[targ == 0]
         x[x < self.eps] += self.eps
