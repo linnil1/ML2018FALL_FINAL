@@ -25,7 +25,7 @@ crop_num = 5
 batch_size = 5 * crop_num * len(parallel)
 
 
-dataset_transform = transform=transforms.Compose([
+dataset_transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.48, 0.48, 0.48, 0.48],
                          std=[0.22, 0.22, 0.22, 0.22])

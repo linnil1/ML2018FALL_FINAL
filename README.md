@@ -6,7 +6,9 @@ Here is my enviroment.
 * python 3.5.2
 * pytorch 0.41
 * pytorchvision 0.21
+* pandas 0.23.4
 * Augmentor
+
 
 ## Download dataset
 Follow https://github.com/Kaggle/kaggle-api
